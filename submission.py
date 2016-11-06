@@ -2,9 +2,12 @@ from __future__ import print_function
 
 import numpy as np
 import cv2
+
+from datetime import datetime
 from itertools import chain
 
 from data import DataManager
+from train import preprocess
 from model import build_model
 
 
@@ -38,20 +41,27 @@ def run_length_enc(label):
 
 
 def generate_submission():
+    # Load test images and preprocess for conv net.
+    print('Loading and processing test images')
     imgs_test = DataManager.load_test_data()
+    total = imgs_test.shape[0]
+    imgs = np.ndarray((total, 1, DataManager.IMG_TARGET_ROWS, DataManager.IMG_TARGET_ROWS), dtype=np.uint8)
+    i = 0
+    for img in imgs_test:
+        imgs[i] = preprocess(img)
+        i += 1
 
     print('Loading network')
     model = build_model()
     model.load_weights('./results/net.hdf5')
 
     print('Generating predictions')
-    has_masks, masks = model.predict(imgs_test, verbose=1)
+    masks, has_masks = model.predict(imgs, verbose=1)
 
-    total = imgs_test.shape[0]
     ids = []
     rles = []
     for i in range(total):
-        if has_masks[i] > 0.65:
+        if has_masks[i, 0] > 0.65:
             mask = masks[i, 0]
             mask = post_process_mask(mask)
         else:
@@ -65,7 +75,7 @@ def generate_submission():
             print('{}/{}'.format(i, total))
 
     first_row = 'img,pixels'
-    file_name = 'results/submission.csv'
+    file_name = 'results/submission_{}.csv'.format(str(datetime.now()))
 
     with open(file_name, 'w+') as f:
         f.write(first_row + '\n')

@@ -1,5 +1,6 @@
 # ultrasound-nerve-segmentation
-Kaggle ultrasound nerve segmentation using Keras
+Kaggle ultrasound nerve segmentation challenge using Keras. Detailed insights including visualization
+and experimentation will follow shortly on my blog.
 
 #Install (Ubuntu {14,16}, GPU)
 
@@ -44,7 +45,7 @@ python train.py
 ```
 Results will be generated in "results/" folder. results/net.hdf5 - best model
 
-#Submission:
+#Submission
 ```
 python submission.py
 ```
@@ -71,11 +72,12 @@ Validation:
 - Split by patient id didn't workout
 
 # Results and technical details
-- Reduced learning rate by factor of 0.2 when stagnation occurred within last 6 epochs.
+- Network contains ~21.8 million parameters. Single epoch took 4.8 minutes.
+- Reduced learning rate by factor of 0.25 when stagnation occurred within last 4 epochs.
 - Logs are written to logs/ and monitored via tensorboard. Examined histograms to detect saturation.
-- For batch_size=32 6Gb GPU memory is required.
-- Best single model achieved 0.68 LB score.
+- Best single model achieved ~0.7 LB score, which puts you on top 30. Ensembling improves this to ~0.71 ish.
 
 
 #Credits
-Borrowed starter code from https://github.com/jocicmarko/ultrasound-nerve-segmentation/
+Borrowed starter code from https://github.com/jocicmarko/ultrasound-nerve-segmentation/, particularly data prep and
+submission portion.

@@ -31,7 +31,7 @@ def _conv_bn_relu(nb_filter, nb_row, nb_col):
 
 def build_model(optimizer=None):
     if optimizer is None:
-        optimizer = Adam(lr=1e-4)
+        optimizer = Adam(lr=1e-3)
 
     inputs = Input((1, DataManager.IMG_TARGET_ROWS, DataManager.IMG_TARGET_COLS), name='main_input')
     conv1 = _conv_bn_relu(32, 5, 5)(inputs)
