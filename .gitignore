@@ -1,0 +1,5 @@
+results/*
+logs/*
+input/*
+*.iml
+.idea/
