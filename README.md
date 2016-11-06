@@ -44,10 +44,11 @@ python train.py
 ```
 Results will be generated in "results/" folder. results/net.hdf5 - best model
 
-Generate submission:
+#Submission:
 ```
 python submission.py
 ```
+will generate submission with run length encoding that can directly be uploaded to kaggle.
 
 #Model
 
@@ -77,4 +78,4 @@ Validation:
 
 
 #Credits
-I borrowed starter code from https://github.com/jocicmarko/ultrasound-nerve-segmentation/
+Borrowed starter code from https://github.com/jocicmarko/ultrasound-nerve-segmentation/
