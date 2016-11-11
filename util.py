@@ -36,52 +36,43 @@ def generate_image_with_masks(img, mask_true, mask_pred):
     return img_color
 
 
-def inspect_preds_on_test():
-    imgs = DataManager.load_test_data()
-    mask = np.load('imgs_mask_test.npy')
-
-    import random
-    indices = range(imgs.shape[0])
-    random.shuffle(indices)
-
-    for i in indices:
-        mask_i = mask[i, 0].astype('float32')
-        # See images with mask
-        if np.count_nonzero(mask_i) > 0:
-            img_i = imgs[i, 0]
-            mask_i = cv2.threshold(mask_i, 0.5, 1., cv2.THRESH_BINARY)[1].astype(np.uint8)
-            mask_i *= 255
-            cv2.imshow("image with mask", generate_image_with_mask(img_i, mask_i))
-            cv2.waitKey(0)
-
-
-def inspect_val():
+def examine_generator():
     X_train, X_val, y_train, y_val = DataManager.load_train_val_data("all")
+    from generator import CustomDataGenerator
+    from train import transform, filter_mask_presence
+
+    X_val, y_val = filter_mask_presence(X_val, y_val)
+    generator = CustomDataGenerator(X_val, y_val, lambda x, y: transform(x, y, augment=True), 32)
+    imgs, outs = generator.next()
+    for i in range(len(imgs)):
+        cv2.imshow("image", imgs[i, 0])
+        cv2.imshow("mask", outs['main_output'][i, 0])
+        cv2.waitKey(0)
+
+
+def inspect_set(train=False):
+    X_train, X_val, y_train, y_val = DataManager.load_train_val_data("all")
+    X = X_train if train else X_val
+    y = y_train if train else y_val
 
     from model import build_model
     from train import transform
+    from submission import post_process_mask
 
-    seg_model = build_model()
-    seg_model.load_weights('./results/seg.hdf5')
+    model = build_model()
+    model.load_weights('./results/net.hdf5')
 
-    for i in range(X_val.shape[0]):
-        img_i, mask_i = transform(X_val[i], y_val[i])
-        mask_pred = seg_model.predict(np.array([img_i]), verbose=1).astype('float32')[0, 0]
+    for i in range(X.shape[0]):
+        img_i, mask_i = transform(X[i], y[i])
+        masks, has_mask = model.predict(np.array([img_i]), verbose=1)
 
-        mask_true = y_val[i]
-        # if np.count_nonzero(mask_true) == 0:
-        # img = cv2.imread("./data/test/{}.tif".format(i+1), cv2.IMREAD_GRAYSCALE)
-        # cv2.imshow("image with mask", generate_image_with_mask(img, mask_true))
-        cv2.imshow("pred", mask_pred)
-        cv2.imshow("true", mask_true)
+        print has_mask[0, 0]
+
+        # print has_masks[0, 0]
+        cv2.imshow("Image with mask".format(i), generate_image_with_mask(X[i], y[i]))
+        cv2.imshow("pred mask".format(i), post_process_mask(masks[0, 0]))
         cv2.waitKey(0)
-
-        # img = generate_image_with_mask(X_val[i], mask_true)
-        # # print has_mask
-        # cv2.imshow("Image with mask".format(i), img)
-        # cv2.imshow("pred mask".format(i), mask_pred)
-        # cv2.waitKey(0)
 
 
 if __name__ == '__main__':
-    inspect_val()
+    inspect_set(train=False)

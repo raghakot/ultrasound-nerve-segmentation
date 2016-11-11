@@ -54,29 +54,35 @@ will generate submission with run length encoding that can directly be uploaded 
 #Model
 
 I used U-net like architecture (http://arxiv.org/abs/1505.04597) with a few tweaks.
- - Batch norm and ELU
- - 2 heads training: auxiliary branch for scoring nerve presence (in the middle of the network), one branch for segmentation
- - Custom Dice loss coefficient, experimented with both strict (avg of dice per image), and average over batch.
- Smoothing is used to avoid discontinuities when there is no nerve.
- - batch_size = 32
- - Ran on Titan X GPU with 12 GB memory.
+ - Main idea was to use two training heads, one optimizing bce for nerve presence and other optimizing dice for segmentation.
+During test time simply zero out masks that have probability < 0.5. This was necessary because large number of samples
+contained no masks, and bce/dice score alone would simply be optimized by outputting all zeros for masks.
+ - Network contains ~8.25 million parameters. Single epoch took 4 minutes on a Titan X with 12 GB memory.
+ - Reduced learning rate by factor of 0.25 when stagnation occurred within last 4 epochs.
+ - Logs are written to 'logs/' folder and monitored via tensorboard. Examined histograms to detect saturation. Note that
+ you need to use fixed set vs generator to get histograms, as of keras 1.1.1 due to a known issue.
+ - Weight regularization prevented convergence (perhaps smaller lambda needed to be used).
+ Used dropout instead to prevent weight saturation (which tended to occur without it)
+ - he_normal weight initialization.
+ - conv with 2 X 2 stride instead of max pooling to downsample, in light of recent results with VAE and GANs.
+ - ELU activation, batchnorm everywhere.
+ - Used 1 X 1 conv instead of dense layers in the spirit of paper - "Striving for simplicity - The all conv net".
 
 Augmentation:
- - flip x,y
- - random rotation (+/- 10 deg)
- - random translations (+/- 20 px)
+ - Parallel aug generation on CPU.
+ - random rotation (+/- 5 deg)
+ - random translations (+/- 10 px)
  - elastic deformation didn't help much.
+ - Larger rotations/translations prevented learning.
 
 Validation:
-- Stratified split by mash/no-mask
-- Split by patient id didn't workout
+- 10% of the examples, stratified split by mask/no-mask
 
-# Results and technical details
-- Network contains ~21.8 million parameters. Single epoch took 4.8 minutes.
-- Reduced learning rate by factor of 0.25 when stagnation occurred within last 4 epochs.
-- Logs are written to logs/ and monitored via tensorboard. Examined histograms to detect saturation.
-- Best single model achieved ~0.7 LB score, which puts you on top 30. Ensembling improves this to ~0.71 ish.
-
+# Visual inspection:
+- utils.examine_generator() can be used to visually inspect augmented samples.
+- utils.inspect_set() can be used to examine test time predictions on train/val set.
+- I am in the process of generalizing layer visualization code. Otherwise, I used various gradient ascent style
+visualizations to sanity check if the network is learning the right thing.
 
 #Credits
 Borrowed starter code from https://github.com/jocicmarko/ultrasound-nerve-segmentation/, particularly data prep and

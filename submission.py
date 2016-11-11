@@ -61,12 +61,11 @@ def generate_submission():
     ids = []
     rles = []
     for i in range(total):
-        if has_masks[i, 0] > 0.65:
-            mask = masks[i, 0]
-            mask = post_process_mask(mask)
-        else:
-            mask = np.zeros(shape=(1, DataManager.IMG_ORIG_ROWS, DataManager.IMG_ORIG_COLS))
+        # Zero out masks when there is no-nerve pred.
+        if has_masks[i, 0] < 0.5:
+            masks[i, 0] *= 0.
 
+        mask = post_process_mask(masks[i, 0])
         rle = run_length_enc(mask)
         rles.append(rle)
         ids.append(i + 1)

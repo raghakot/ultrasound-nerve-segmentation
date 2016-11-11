@@ -313,7 +313,7 @@ def apply_aug_matrices(images, matrices, transform_channels_equally=True,
         # higher than or equal to the number of matrices
         order_indices = np.arange(0, len_indices) % len(matrices)
 
-    result = np.zeros(images.shape, dtype=np.float32)
+    result = np.zeros(images.shape, dtype=images.dtype)
     matrix_number = 0
 
     # iterate over every image, find out which matrix to apply and then use
@@ -325,7 +325,7 @@ def apply_aug_matrices(images, matrices, transform_channels_equally=True,
             # steps for three channels as in the else-part)
             matrix = matrices[order_indices[matrix_number]]
             result[img_idx, ...] = tf.warp(image, matrix, mode=mode, cval=cval,
-                                           order=interpolation_order)
+                                           order=interpolation_order, preserve_range=True)
             matrix_number += 1
         else:
             # we cant apply the matrix to the whole image in one step, instead
@@ -337,11 +337,11 @@ def apply_aug_matrices(images, matrices, transform_channels_equally=True,
                 matrix = matrices[order_indices[matrix_number]]
                 if channel_is_first_axis:
                     warped = tf.warp(image[channel_idx], matrix, mode=mode,
-                                     cval=cval, order=interpolation_order)
+                                     cval=cval, order=interpolation_order, preserve_range=True)
                     result[img_idx, channel_idx, ...] = warped
                 else:
                     warped = tf.warp(image[..., channel_idx], matrix, mode=mode,
-                                     cval=cval, order=interpolation_order)
+                                     cval=cval, order=interpolation_order, preserve_range=True)
                     result[img_idx, ..., channel_idx] = warped
 
                 if not transform_channels_equally:
