@@ -17,7 +17,7 @@ class DataManager(object):
     IMG_TARGET_COLS = 160
 
     @staticmethod
-    def create_train_data():
+    def read_train_images():
         train_data_path = os.path.join(DataManager.DATA_PATH, 'train')
         images = list_images(train_data_path)
         total = len(images) / 2
@@ -26,7 +26,7 @@ class DataManager(object):
         imgs = np.ndarray((total, DataManager.IMG_ORIG_ROWS, DataManager.IMG_ORIG_COLS), dtype=np.uint8)
         imgs_mask = np.ndarray((total, DataManager.IMG_ORIG_ROWS, DataManager.IMG_ORIG_COLS), dtype=np.uint8)
 
-        print('Creating training images...')
+        print('Loading training images...')
         i = 0
         for image_path in images:
             if 'mask' in image_path:
@@ -43,9 +43,13 @@ class DataManager(object):
             if i % 100 == 0:
                 print('Done: {0}/{1} images'.format(i, total))
             i += 1
+        return patient_classes, imgs, imgs_mask
 
-        # Build all data set
-        print('Saving train samples...')
+    @staticmethod
+    def create_train_data():
+        patient_classes, imgs, imgs_mask = DataManager.read_train_images()
+
+        print('Creating train dataset...')
         mask_labels = [1 if np.count_nonzero(mask) > 0 else 0 for mask in imgs_mask]
         DataManager.save_train_val_split(imgs, imgs_mask, "all", stratify=mask_labels)
 
