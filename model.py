@@ -13,7 +13,7 @@ from keras.layers.advanced_activations import ELU
 from keras.models import Model
 
 from keras.optimizers import Adam
-from metric import dice_loss, dice, bce
+from metric import dice_loss, dice
 from data import DataManager
 
 
@@ -86,7 +86,7 @@ def build_model(optimizer=None):
 
     model = Model(input=inputs, output=[conv10, aux])
     model.compile(optimizer=optimizer,
-                  loss={'main_output': dice_loss, 'aux_output': bce},
+                  loss={'main_output': dice_loss, 'aux_output': 'binary_crossentropy'},
                   metrics={'main_output': dice, 'aux_output': 'acc'},
                   loss_weights={'main_output': 1, 'aux_output': 0.5})
 

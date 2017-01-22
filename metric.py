@@ -1,4 +1,3 @@
-import tensorflow as tf
 from keras import backend as K
 
 smooth = 1
@@ -36,32 +35,6 @@ def dice_strict(y_true, y_pred):
 
 def dice_loss_strict(y_true, y_pred):
     return -dice_strict(y_true, y_pred)
-
-
-def _to_tensor(x, dtype):
-    x = tf.convert_to_tensor(x)
-    if x.dtype != dtype:
-        x = tf.cast(x, dtype)
-    return x
-
-
-def _tf_bce(output, target, from_logits=False):
-    """Workaround for keras bug with latest tensorflow"""
-
-    # Note: tf.nn.softmax_cross_entropy_with_logits
-    # expects logits, Keras expects probabilities.
-    if not from_logits:
-        # transform back to logits
-        epsilon = _to_tensor(K.epsilon(), output.dtype.base_dtype)
-        output = tf.clip_by_value(output, epsilon, 1 - epsilon)
-        output = tf.log(output / (1 - output))
-    return tf.nn.sigmoid_cross_entropy_with_logits(labels=output, logits=target)
-
-
-def bce(y_true, y_pred):
-    # Workaround for shape bug.
-    y_true.set_shape(y_pred.get_shape())
-    return K.mean(_tf_bce(y_pred, y_true), axis=-1)
 
 
 # Sanity check loss functions..
