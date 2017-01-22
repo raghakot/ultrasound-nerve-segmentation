@@ -55,7 +55,7 @@ def transform(img, mask, augment=True):
 
 def train(resume=False):
     print('Loading data...')
-    X_train, X_val, y_train, y_val = DataManager.load_train_val_data("all")
+    X_train, X_val, y_train, y_val = DataManager.load_train_val_data("cleaned")
     # X_train, y_train = filter_mask_presence(X_train, y_train)
     # X_val, y_val = filter_mask_presence(X_train, y_train)
 
