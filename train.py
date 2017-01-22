@@ -68,7 +68,7 @@ def train(resume=False):
     print('Training on model')
     model.summary()
     batch_size = 64
-    nb_epoch = 50
+    nb_epoch = 200
 
     train_generator = CustomDataGenerator(X_train, y_train, transform, batch_size)
 
@@ -78,7 +78,7 @@ def train(resume=False):
     val_generator = CustomDataGenerator(X_val, y_val, lambda x, y: transform(x, y, augment=False), batch_size)
 
     model.fit_generator(train_generator, validation_data=val_generator, nb_val_samples=X_val.shape[0],
-                        samples_per_epoch=X_train.shape[0], nb_epoch=nb_epoch, verbose=1,
+                        samples_per_epoch=X_train.shape[0], nb_epoch=nb_epoch, verbose=2,
                         callbacks=[model_checkpoint, reduce_lr, tb], max_q_size=1000)
 
 

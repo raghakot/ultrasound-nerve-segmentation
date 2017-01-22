@@ -18,7 +18,7 @@ class DataManager(object):
 
     @staticmethod
     def read_train_images():
-        train_data_path = os.path.join(DataManager.DATA_PATH, 'train')
+        train_data_path = os.path.join(DataManager.DATA_PATH, 'train_cleaned')
         images = list_images(train_data_path)
         total = len(images) / 2
 
