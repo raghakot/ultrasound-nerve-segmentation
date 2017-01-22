@@ -1,6 +1,7 @@
 # ultrasound-nerve-segmentation
-Kaggle ultrasound nerve segmentation challenge using Keras. Detailed insights including visualization
-and experimentation will follow shortly on my blog.
+Kaggle ultrasound nerve segmentation challenge using Keras. 
+Read my [blog](https://raghakot.github.io/2016/12/26/Ultrasound-nerve-segmentation-challenge-on-Kaggle.html) for 
+details and insights.
 
 #Install (Ubuntu {14,16}, GPU)
 
@@ -36,7 +37,7 @@ Run
 ```
 python data.py
 ```
-to generate data within input folder
+to generate data within input folder. This is a one time only operation,
 
 #Training
 
